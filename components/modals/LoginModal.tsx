@@ -5,35 +5,38 @@ import Input from "../Input";
 import useRegisterModal from "@/hooks/useRegisterModal";
 import { signIn } from "next-auth/react";
 import toast from "react-hot-toast";
-
+import Loader from "../Loader";
+import { useRouter } from "next/router";
 
 const LoginModal = () => {
   const loginModal = useLoginModal();
   const registerModal = useRegisterModal();
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSignIn = useCallback(async()=>{
-    try{
-         setIsLoading(true);
+  const handleSignIn = useCallback(async () => {
+    try {
+      setIsLoading(true);
 
-        //  TODO login logic
-        await signIn('credentials', {
-            email,
-            password
-        })
-
-        toast.success('Successfully logged in')
-      loginModal.onClose()
-    }catch(error){
-        console.log(error);
-        toast.error('Invalid Credential!')
-    }finally{
-        setIsLoading(false) //whatever may be the conditions its gonna set isloading false
+      //  TODO login logic
+      await signIn("credentials", {
+        email,
+        password,
+      });
+    
+      toast.success("Successfully logged in");
+      router.push("/dashboard")
+      loginModal.onClose();
+    } catch (error) {
+      console.log(error);
+      toast.error("Invalid Credential!");
+    } finally {
+      setIsLoading(false); //whatever may be the conditions its gonna set isloading false
     }
-},[loginModal, email, password])
+  }, [email, password, router, loginModal]);
 
   const ontoggle = useCallback(() => {
     console.log("onToggle method is being called");
@@ -61,24 +64,30 @@ const LoginModal = () => {
         }}
         placeholder="Password"
       />
-      <button
-        className="my-4 py-2 d-flex justify-content-center "
-        type="submit"
-        onClick={()=>handleSignIn()}
-        style={{
-          all: "unset",
-          cursor: "pointer",
-          color: "#1d0739",
-          backgroundColor: "#fff",
-          width: "100%",
-          boxSizing: "border-box",
-          borderRadius: "8px",
-          fontSize: "18px",
-          fontWeight: "400",
-        }}
-      >
-        Log in
-      </button>
+      {isLoading ? (
+        <div className="d-flex justify-content-center align-items-center py-2" style={{ width:'100%'}} >
+          <Loader />
+        </div>
+      ) : (
+        <button
+          className="my-4 py-2 d-flex justify-content-center "
+          type="submit"
+          onClick={() => handleSignIn()}
+          style={{
+            all: "unset",
+            cursor: "pointer",
+            color: "#1d0739",
+            backgroundColor: "#fff",
+            width: "100%",
+            boxSizing: "border-box",
+            borderRadius: "8px",
+            fontSize: "18px",
+            fontWeight: "400",
+          }}
+        >
+          Log in
+        </button>
+      )}
     </div>
   );
 
